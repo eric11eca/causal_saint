@@ -76,9 +76,9 @@ class DefeasibleCausalDataset(Dataset):
 
 
 class DefeasibleCausalDataModule(pl.LightningDataModule):
-    def __init__(self, model_name, data_pth, intervention, save_to_cache=False, max_len_inp=128):
+    def __init__(self, model_name, data_pth, intervention, tokenize=False, max_len_inp=128):
 
-        if save_to_cache:
+        if tokenize:
             self.train_dataset = DefeasibleCausalDataset(
                 model_name,
                 data_pth=f"{data_pth}/train.jsonl",
@@ -124,23 +124,23 @@ class DefeasibleCausalDataModule(pl.LightningDataModule):
 
 
 class StrengthenerDataModule(DefeasibleCausalDataModule):
-    def __init__(self, model_name, data_pth, save_to_cache=False, max_len_inp=72):
+    def __init__(self, model_name, data_pth, tokenize=False, max_len_inp=72):
         super().__init__(
             model_name,
             data_pth,
             intervention="strengthener",
-            save_to_cache=save_to_cache,
+            tokenize=tokenize,
             max_len_inp=max_len_inp
         )
 
 
 class WeakenerDataModule(DefeasibleCausalDataModule):
-    def __init__(self, model_name, data_pth, save_to_cache=False, max_len_inp=72):
+    def __init__(self, model_name, data_pth, tokenize=False, max_len_inp=72):
         super().__init__(
             model_name,
             data_pth,
             intervention="weakener",
-            save_to_cache=save_to_cache,
+            tokenize=tokenize,
             max_len_inp=max_len_inp
         )
 
@@ -218,7 +218,7 @@ if __name__ == "__main__":
                         help="probing model name")
     parser.add_argument("--intervention", type=str, default="strengthener",
                         help="intervention type")
-    parser.add_argument("--save_to_cache", action='store_true',
+    parser.add_argument("--tokenize", action='store_true',
                         help="save tokenized data to cache")
     args = parser.parse_args()
 
@@ -258,7 +258,7 @@ if __name__ == "__main__":
     probe_name = f"{args.task}_{args.model}_{args.intervention}"
 
     intervention_data_module = do_operations[args.intervention](
-        model_name, data_pth, save_to_cache=args.save_to_cache)
+        model_name, data_pth, tokenize=args.tokenize)
 
     causal_prober = DefeasibleCausalProbe(model_name, probe_name)
 
