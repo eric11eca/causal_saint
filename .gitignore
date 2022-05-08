@@ -1,0 +1,5 @@
+./data/defeasible-nli/atomic/cache
+./data/defeasible-nli/snli/cache
+./data/defeasible-nli/social_chem/cache
+lightning_logs
+wandb
