@@ -1,0 +1,14 @@
+{
+  "snli_mnli_deberta_weakener": -0.27099565100793394,
+  "snli_mnli_deberta_strengthener": 0.02088533312545539,
+  "atomic_mnli_deberta_weakener": -0.13917129564264,
+  "atomic_mnli_deberta_strengthener": -0.013963136753829554,
+  "social_chem_mnli_deberta_weakener": -0.17911170296215684,
+  "social_chem_mnli_deberta_strengthener": -0.006083455786343814,
+  "snli_anli_roberta_weakener": -0.03411784987375526,
+  "snli_anli_roberta_strengthener": 0.2285556457203287,
+  "atomic_anli_roberta_weakener": 0.007054792350554562,
+  "atomic_anli_roberta_strengthener": 0.1342421824886351,
+  "social_chem_anli_roberta_weakener": -0.06908575231555034,
+  "social_chem_anli_roberta_strengthener": 0.15615756912890824
+}

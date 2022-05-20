@@ -9,7 +9,7 @@ from pytorch_lightning.loggers import WandbLogger
 from pytorch_lightning.callbacks import RichProgressBar
 from pytorch_lightning.callbacks.progress.rich_progress import RichProgressBarTheme
 
-from plm.utils.python.py_io import read_jsonl
+from plm.utils.python.py_io import read_jsonl, read_json, write_json
 from plm.utils.zlog import ZLogger
 from plm.utils.datastructures import BiDict
 
@@ -180,6 +180,8 @@ class DefeasibleCausalProbe(pl.LightningModule):
             prob_hat[:, 0], prob_hat[:, 1] + prob_hat[:, 2])
         total_effect_batch = self.total_effect(
             bias_hat, bias).cpu().detach().numpy()
+
+        pred = torch.argmax(prob).cpu().numpy()
         return total_effect_batch
 
     def test_epoch_end(self, outputs):
@@ -193,18 +195,21 @@ class DefeasibleCausalProbe(pl.LightningModule):
                 })
         total_effect_avg = self.total_effect_avg(
             total_effects, len(total_effects))
-        self.zlogger.write_entry(
-            f"{self.probe_name}-avg_eval_log",
-            {
-                "total_effect_avg": total_effect_avg.tolist()
-            })
+        tf_log = read_json("zlogger/defeasible_nli_tf.json")
+        tf_log[self.probe_name] = total_effect_avg.tolist()
+        write_json(tf_log, "zlogger/defeasible_nli_tf.json")
         self.log("total_effect_avg", total_effect_avg)
 
     def inference_bias(self, prob_entail, prob_non):
-        return prob_entail / prob_non
+        if "weakener" in self.probe_name:
+            return prob_non - prob_entail
+        else:
+            return prob_entail - prob_non
 
     def total_effect(self, inference_bias, inference_bias_null):
-        return torch.atan((inference_bias / inference_bias_null) - 1) / (math.pi / 2)
+        # / (math.pi / 2)
+        # return torch.atan((inference_bias / abs(inference_bias_null)) - 1)
+        return torch.atan((inference_bias - inference_bias_null) / abs(inference_bias_null))
 
     def total_effect_avg(self, total_effects, num_examples):
         return np.sum(total_effects) / num_examples
